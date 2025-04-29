@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 function TodoList() {
   const [tasks, setTasks] = useState([]);
@@ -6,7 +6,7 @@ function TodoList() {
   const [filter, setFilter] = useState("all");
   const [editIndex, setEditIndex] = useState(null);
   const [editText, setEditText] = useState("");
-
+  console.log("newTask", tasks);
   const handleAdd = () => {
     if (newTask.trim()) {
       setTasks([...tasks, { text: newTask, completed: false }]);
@@ -37,12 +37,13 @@ function TodoList() {
     setEditIndex(null);
     setEditText("");
   };
-
-  const filteredTasks = tasks.filter((task) => {
-    if (filter === "completed") return task.completed;
-    if (filter === "incomplete") return !task.completed;
-    return true;
-  });
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (filter === "completed") return task.completed;
+      if (filter === "incomplete") return !task.completed;
+      return true;
+    });
+  }, [tasks, filter]);
 
   return (
     <div>
@@ -50,18 +51,22 @@ function TodoList() {
       <div>
         <input
           type="text"
-          placeholder="Add a new task..."
+          placeholder="Add a new task"
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
         />
         <button onClick={handleAdd}>Add</button>
       </div>
 
-      <div>
-        <button onClick={() => setFilter("all")}>All</button>
-        <button onClick={() => setFilter("completed")}>Completed</button>
-        <button onClick={() => setFilter("incomplete")}>Incomplete</button>
-      </div>
+      {tasks.length ? (
+        <div>
+          <button onClick={() => setFilter("all")}>All</button>
+          <button onClick={() => setFilter("completed")}>Completed</button>
+          <button onClick={() => setFilter("incomplete")}>Incomplete</button>
+        </div>
+      ) : (
+        ""
+      )}
 
       {filteredTasks.map((task, index) => (
         <div key={index}>
